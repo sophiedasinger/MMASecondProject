@@ -7,59 +7,125 @@
 //
 
 import UIKit
+import Foundation
 
 class ViewController: UIViewController {
-
+    
     @IBOutlet weak var bearImage: UIImageView!
     var lastTaskCompleted: Bool = true
-    var timePassed = 0
+    var timePassed = 0 // time elapsed since task assigned
+    var task = taskTime(hour: 6, minute: 0)
+    
+    var secondTest = 0
+    
+    
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-
-        setBearMood("happy")
+        // getData continuously
+        //
+        // computeBearMood continuously
+        //setBearMood("neutral")
+        let getDataTimer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: Selector("getData"), userInfo: nil, repeats: true)
+        //        let getDataTimer = NSTimer.scheduledTimerWithTimeInterval(9.0, target: self, selector: Selector("setBearMood"), userInfo: nil, repeats: true)
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     func getData() {
-        // get data from server
-        // check if task was completed, and how much time has passed
+        let url = NSURL(string: "https://peaceful-woodland-42419.herokuapp.com/")
+        let session = NSURLSession.sharedSession()
+        
+        let dataTask = session.dataTaskWithURL(url!) {
+            data, response, error in
+            dispatch_async(dispatch_get_main_queue()) {
+                UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+                if let error = error {
+                    print(error.localizedDescription)
+                } else if let httpResponse = response as? NSHTTPURLResponse {
+                    if httpResponse.statusCode == 200 {
+                        print("successful request")
+                        let dataString = NSString(data: data!, encoding: NSUTF8StringEncoding)
+                        self.parseData(dataString! as String)
+                    }
+                }
+            }
+            
+        }
+        dataTask.resume()
+        //parseData("1")
     }
     
-    func interpretData() {
-        // check if task was completed, and how much time has passed
-        
+    func parseData(jsonStr: String) {
+        timePassed = calculateTimeElapsed()
+        print(timePassed)
+        var data: NSData = jsonStr.dataUsingEncoding(NSUTF8StringEncoding)!
+        do {
+            let json = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
+            if ((json.count) != nil) {
+                lastTaskCompleted = true
+                //computeTimePassed(json[1])
+            }
+            computeBearMood()
+        } catch {
+            computeBearMood()
+            print("error serializing JSON: \(error)")
+        }
     }
     
     func computeBearMood() {
+        print("computeBearMood")
         if (lastTaskCompleted && timePassed <= 30) {
             setBearMood("happy")
-        } else if (lastTaskCompleted && timePassed > 30) {
+        } else if (timePassed > 30) {
+            print("here")
             setBearMood("neutral")
-        } else if (!lastTaskCompleted && timePassed <= 30) {
+        } else if (timePassed <= 60) {
             setBearMood("unhappy")
-        } else if (!lastTaskCompleted && timePassed > 30) {
+        } else if (timePassed > 120) {
             setBearMood("sad")
         }
     }
     
+    func calculateTimeElapsed() -> Int{
+        let date = NSDate()
+        let calendar = NSCalendar.currentCalendar()
+        let components = calendar.components([.Hour, .Minute, .Second], fromDate: date)
+        let hr = components.hour
+        let mins = components.minute
+        let secs = components.second
+        
+        //        let hourDiff = hr - task.hour
+        //        let minDiff = mins - task.minute
+        //
+        //        let minElapsed = (hourDiff * 60 + minDiff)
+        //        let minElapsed = 45.0
+        let secondsElapsed = secs - secondTest
+        return secondsElapsed
+    }
+    
+    func processNewTask() {
+        // set lastTaskCompleted to false
+        lastTaskCompleted = false
+    }
+    
     func setBearMood(mood: String) {
         if (mood ==  "happy") {
-            let image: UIImage = UIImage(named: "superhappy-face")!
+            var image: UIImage = UIImage(named: "superhappy-face")!
             bearImage.image = image
         } else if (mood == "neutral") {
-            let image: UIImage = UIImage(named: "happy-face")!
+            print("neutral face")
+            var image: UIImage = UIImage(named: "happy-face")!
             bearImage.image = image
         } else if (mood == "unhappy") {
-            let image: UIImage = UIImage(named: "unhappy-face")!
+            var image: UIImage = UIImage(named: "unhappy-face")!
             bearImage.image = image
         } else if (mood == "sad") {
-            let image: UIImage = UIImage(named: "sad-face")!
+            var image: UIImage = UIImage(named: "sad-face")!
             bearImage.image = image
         }
         

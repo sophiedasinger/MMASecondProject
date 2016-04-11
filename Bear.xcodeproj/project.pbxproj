@@ -14,6 +14,7 @@
 		623162FA1CBAC2F3004C8757 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 623162F81CBAC2F3004C8757 /* LaunchScreen.storyboard */; };
 		623163051CBAC2F3004C8757 /* BearTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 623163041CBAC2F3004C8757 /* BearTests.swift */; };
 		623163101CBAC2F3004C8757 /* BearUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6231630F1CBAC2F3004C8757 /* BearUITests.swift */; };
+		623163201CBC0EF6004C8757 /* taskTime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6231631F1CBC0EF6004C8757 /* taskTime.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +48,7 @@
 		6231630B1CBAC2F3004C8757 /* BearUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BearUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6231630F1CBAC2F3004C8757 /* BearUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BearUITests.swift; sourceTree = "<group>"; };
 		623163111CBAC2F3004C8757 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6231631F1CBC0EF6004C8757 /* taskTime.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = taskTime.swift; path = ../../Bear/Bear/taskTime.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +99,7 @@
 		623162EE1CBAC2F3004C8757 /* Bear */ = {
 			isa = PBXGroup;
 			children = (
+				6231631F1CBC0EF6004C8757 /* taskTime.swift */,
 				623162EF1CBAC2F3004C8757 /* AppDelegate.swift */,
 				623162F11CBAC2F3004C8757 /* ViewController.swift */,
 				623162F31CBAC2F3004C8757 /* Main.storyboard */,
@@ -256,6 +259,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				623163201CBC0EF6004C8757 /* taskTime.swift in Sources */,
 				623162F21CBAC2F3004C8757 /* ViewController.swift in Sources */,
 				623162F01CBAC2F3004C8757 /* AppDelegate.swift in Sources */,
 			);
@@ -484,6 +488,7 @@
 				623163161CBAC2F3004C8757 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		623163171CBAC2F3004C8757 /* Build configuration list for PBXNativeTarget "BearTests" */ = {
 			isa = XCConfigurationList;
@@ -492,6 +497,7 @@
 				623163191CBAC2F3004C8757 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		6231631A1CBAC2F3004C8757 /* Build configuration list for PBXNativeTarget "BearUITests" */ = {
 			isa = XCConfigurationList;
@@ -500,6 +506,7 @@
 				6231631C1CBAC2F3004C8757 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

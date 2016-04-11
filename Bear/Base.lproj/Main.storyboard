@@ -17,11 +17,36 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pmC-bq-cAX">
-                                <rect key="frame" x="157" y="171" width="240" height="128"/>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pmC-bq-cAX">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="0.0"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="375" id="CVQ-Fk-Avx"/>
+                                    <constraint firstAttribute="height" constant="580" id="xjl-Wx-x76"/>
+                                </constraints>
                             </imageView>
+                            <navigationBar contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TaX-PF-qlx">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="90"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="90" id="Wpe-qq-Gx7"/>
+                                </constraints>
+                                <color key="barTintColor" red="0.50588235290000005" green="0.73725490199999999" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
+                                <textAttributes key="titleTextAttributes">
+                                    <fontDescription key="fontDescription" type="system" pointSize="32"/>
+                                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </textAttributes>
+                                <items>
+                                    <navigationItem title="CareBear" id="ST0-6g-APa">
+                                        <barButtonItem key="rightBarButtonItem" title="Track" id="LNj-IB-97k"/>
+                                    </navigationItem>
+                                </items>
+                            </navigationBar>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="pmC-bq-cAX" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="AWi-qc-Dgg"/>
+                            <constraint firstItem="TaX-PF-qlx" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="S01-jU-kWs"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="pmC-bq-cAX" secondAttribute="bottom" id="oYr-4x-ZKD"/>
+                        </constraints>
                     </view>
                     <connections>
                         <outlet property="bearImage" destination="pmC-bq-cAX" id="iFl-yl-XUC"/>
