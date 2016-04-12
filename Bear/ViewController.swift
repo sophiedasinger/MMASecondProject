@@ -64,5 +64,10 @@ class ViewController: UIViewController {
         }
         
     }
+    
+    @IBAction func newTasks(sender: AnyObject) -> Void {
+        let button:UIButton = sender as! UIButton
+        button.setTitle("clicked", forState: .Normal)
+    }
 }
 
