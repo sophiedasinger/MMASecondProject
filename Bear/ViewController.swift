@@ -28,7 +28,9 @@ class ViewController: UIViewController {
         //
         // computeBearMood continuously
         //setBearMood("neutral")
-        let getDataTimer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: Selector("getData"), userInfo: nil, repeats: true)
+        var image: UIImage = UIImage(named: "happy-face")!
+        bearImage.image = image
+        //let getDataTimer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: Selector("getData"), userInfo: nil, repeats: true)
         //        let getDataTimer = NSTimer.scheduledTimerWithTimeInterval(9.0, target: self, selector: Selector("setBearMood"), userInfo: nil, repeats: true)
     }
     
