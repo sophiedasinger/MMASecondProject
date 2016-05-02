@@ -30,8 +30,8 @@ class ViewController: UIViewController {
         //setBearMood("neutral")
         var image: UIImage = UIImage(named: "happy-face")!
         bearImage.image = image
-        //let getDataTimer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: Selector("getData"), userInfo: nil, repeats: true)
-        //        let getDataTimer = NSTimer.scheduledTimerWithTimeInterval(9.0, target: self, selector: Selector("setBearMood"), userInfo: nil, repeats: true)
+//        let getDataTimer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: Selector("getData"), userInfo: nil, repeats: true)
+//                let getDataTimer = NSTimer.scheduledTimerWithTimeInterval(9.0, target: self, selector: Selector("setBearMood"), userInfo: nil, repeats: true)
     }
     
     override func didReceiveMemoryWarning() {
@@ -64,6 +64,7 @@ class ViewController: UIViewController {
     
     func parseData(jsonStr: String) {
         timePassed = calculateTimeElapsed()
+        
         print(timePassed)
         var data: NSData = jsonStr.dataUsingEncoding(NSUTF8StringEncoding)!
         do {
@@ -81,8 +82,12 @@ class ViewController: UIViewController {
     
     func computeBearMood() {
         print("computeBearMood")
-        if (lastTaskCompleted && timePassed <= 30) {
-            setBearMood("happy")
+        if (lastTaskCompleted) {
+            if (timePassed <= 10) {
+                setBearMood("happy")
+            } else {
+                setBearMood("girl")
+            }
         } else if (timePassed > 30) {
             print("here")
             setBearMood("neutral")
@@ -128,6 +133,9 @@ class ViewController: UIViewController {
             bearImage.image = image
         } else if (mood == "sad") {
             var image: UIImage = UIImage(named: "sad-face")!
+            bearImage.image = image
+        } else if (mood == "girl") {
+            var image: UIImage = UIImage(named: "girl")!
             bearImage.image = image
         }
         
