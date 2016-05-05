@@ -38,6 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //        localNotification.fireDate = NSDate(timeIntervalSinceNow: 5)
         localNotification.repeatInterval = NSCalendarUnit.Day //repeat every day
         UIApplication.sharedApplication().scheduleLocalNotification(localNotification)
+
         return true
     }
 
