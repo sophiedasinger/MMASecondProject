@@ -18,9 +18,6 @@ class ViewController: UIViewController {
     
     var secondTest = 0
     
-    
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -38,6 +35,7 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
     func getData() {
         let url = NSURL(string: "https://peaceful-woodland-42419.herokuapp.com/")
         let session = NSURLSession.sharedSession()
