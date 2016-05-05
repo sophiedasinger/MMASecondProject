@@ -52,16 +52,16 @@ class ViewController: UIViewController {
     }
     
     func echoTest(){
-        var messageNum = 0
-        let ws = WebSocket("wss://echo.websocket.org")
-        let send : ()->() = {
-            let msg = "\(++messageNum): \(NSDate().description)"
-            print("send: \(msg)")
-            ws.send(msg)
-        }
+        let ws = WebSocket("wss://ws.pusherapp.com:443/app/cfb59a45c6610968c157?client=iOS-libPusher&version=3.0&protocol=5")
         ws.event.open = {
             print("opened")
-            send()
+            let jsonObject: [String: AnyObject] = [
+                "event": "pusher:subscribe",
+                "data": [
+                    "channel": "test_channel",
+                ]
+            ]
+            ws.send(self.jsonStringify(jsonObject))
         }
         ws.event.close = { code, reason, clean in
             print("close")
@@ -72,13 +72,61 @@ class ViewController: UIViewController {
         ws.event.message = { message in
             if let text = message as? String {
                 print("recv: \(text)")
-                if messageNum == 10 {
-                    ws.close()
-                } else {
-                    send()
-                }
+
             }
         }
+    }
+
+    // Source: https://medium.com/swift-programming/groundup-json-stringify-in-swift-b2d805458985#.w6el4l4mm
+    
+    func jsonStringify(jsonObject: AnyObject) -> String {
+        var jsonString: String = ""
+
+        switch jsonObject {
+            
+        case _ as [String: AnyObject] :
+            
+            let tempObject: [String: AnyObject] = jsonObject as! [String: AnyObject]
+            jsonString += "{"
+            for (key , value) in tempObject {
+                if jsonString.characters.count > 1 {
+                    jsonString += ","
+                }
+                jsonString += "\"" + String(key) + "\":"
+                jsonString += jsonStringify(value)
+            }
+            jsonString += "}"
+            
+        case _ as [AnyObject] :
+            
+            jsonString += "["
+            for i in 0..<jsonObject.count {
+                if i > 0 {
+                    jsonString += ","
+                }
+                jsonString += jsonStringify(jsonObject[i])
+            }
+            jsonString += "]"
+            
+        case _ as String :
+            
+            jsonString += ("\"" + String(jsonObject) + "\"")
+            
+        case _ as NSNumber :
+            
+            if jsonObject.isEqualToValue(NSNumber(bool: true)) {
+                jsonString += "true"
+            } else if jsonObject.isEqualToValue(NSNumber(bool: false)) {
+                jsonString += "false"
+            } else {
+                return String(jsonObject)
+            }
+            
+        default :
+            
+            jsonString += ""
+        }
+        return jsonString
     }
     
     func getData() {
