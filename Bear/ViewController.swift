@@ -9,25 +9,37 @@
 import UIKit
 import Foundation
 
+
 class ViewController: UIViewController {
     
     @IBOutlet weak var bearImage: UIImageView!
     var lastTaskCompleted: Bool = true
     var timePassed = 0 // time elapsed since task assigned
-    var task = taskTime(hour: 6, minute: 0)
+    
+    
+    let notif = UILocalNotification()
+
     
     var secondTest = 0
     
     
-    
-    
     override func viewDidLoad() {
+        echoTest()
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         // getData continuously
         //
         // computeBearMood continuously
         //setBearMood("neutral")
+        
+        notif.alertAction = "Open"
+        notif.alertBody = "Time to brush your teeth"
+        let dateFire: NSDateComponents = NSDateComponents()
+        dateFire.hour = 6
+        dateFire.minute = 0
+        notif.fireDate = NSDate(timeIntervalSinceNow: 5)
+        let task = taskTime(hour: 6, minute: 0, notification: notif)
+        
         var image: UIImage = UIImage(named: "happy-face")!
         bearImage.image = image
 //        let getDataTimer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: Selector("getData"), userInfo: nil, repeats: true)
@@ -38,6 +50,37 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    func echoTest(){
+        var messageNum = 0
+        let ws = WebSocket("wss://echo.websocket.org")
+        let send : ()->() = {
+            let msg = "\(++messageNum): \(NSDate().description)"
+            print("send: \(msg)")
+            ws.send(msg)
+        }
+        ws.event.open = {
+            print("opened")
+            send()
+        }
+        ws.event.close = { code, reason, clean in
+            print("close")
+        }
+        ws.event.error = { error in
+            print("error \(error)")
+        }
+        ws.event.message = { message in
+            if let text = message as? String {
+                print("recv: \(text)")
+                if messageNum == 10 {
+                    ws.close()
+                } else {
+                    send()
+                }
+            }
+        }
+    }
+    
     func getData() {
         let url = NSURL(string: "https://peaceful-woodland-42419.herokuapp.com/")
         let session = NSURLSession.sharedSession()
