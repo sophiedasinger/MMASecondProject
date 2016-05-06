@@ -23,19 +23,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 //  ** stackoverflow.com/questions/30619998/repeating-local-notification-daily-at-a-set-time-with-swift **
         var dateComp:NSDateComponents = NSDateComponents()
+        dateComp.timeZone = NSTimeZone.localTimeZone()
         dateComp.year = 2016;
         dateComp.month = 05;
-        dateComp.day = 05;
-        dateComp.hour = 21;
-        dateComp.minute = 03;
-        dateComp.timeZone = NSTimeZone.systemTimeZone()
-        
+        dateComp.day = 06;
+        dateComp.hour = 09;
+        dateComp.minute = 30;
         var calendar:NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
         var date:NSDate = calendar.dateFromComponents(dateComp)!
-        
         localNotification.fireDate = date
         
-//        localNotification.fireDate = NSDate(timeIntervalSinceNow: 5)
         localNotification.repeatInterval = NSCalendarUnit.Day //repeat every day
         UIApplication.sharedApplication().scheduleLocalNotification(localNotification)
 

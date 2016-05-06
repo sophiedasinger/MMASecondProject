@@ -14,12 +14,12 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var bearImage: UIImageView!
     var lastTaskCompleted: Bool = true
-    var timePassed = 0 // time elapsed since task assigned
-    
-    
+    var timePassed:Double = 0 // time elapsed since task assigned
+
 
     let notif = UILocalNotification()
-
+    var toothbrushAlert_time = NSDate()
+    var timeTaskCompleted = NSDate()
     
     var secondTest = 0
     
@@ -32,6 +32,7 @@ class ViewController: UIViewController {
         //
         // computeBearMood continuously
         //setBearMood("neutral")
+        getBrushTime()
         
         notif.alertAction = "Open"
         notif.alertBody = "Time to brush your teeth"
@@ -50,6 +51,26 @@ class ViewController: UIViewController {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    func getBrushTime() {
+        
+        //toothbrush original alert time
+        var brushComp:NSDateComponents = NSDateComponents()
+        brushComp.timeZone = NSTimeZone.localTimeZone()
+        brushComp.year = 2016;
+        brushComp.month = 05;
+        brushComp.day = 06;
+        brushComp.hour = 09;
+        brushComp.minute = 30;
+        var cal:NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
+        var date:NSDate = cal.dateFromComponents(brushComp)!
+        toothbrushAlert_time = date
+
+        print("tooth time: ")
+        print(toothbrushAlert_time)
+        
+        calculateTimeElapsed(toothbrushAlert_time)
     }
     
 
@@ -156,13 +177,13 @@ class ViewController: UIViewController {
     }
     
     func parseData(jsonStr: String) {
-        timePassed = calculateTimeElapsed()
+        timePassed = calculateTimeElapsed(toothbrushAlert_time)
         
-        print(timePassed)
         var data: NSData = jsonStr.dataUsingEncoding(NSUTF8StringEncoding)!
         do {
             let json = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
             if ((json.count) != nil) {
+                timeTaskCompleted = NSDate() //current time Completed
                 lastTaskCompleted = true
                 //computeTimePassed(json[1])
             }
@@ -176,7 +197,7 @@ class ViewController: UIViewController {
     func computeBearMood() {
         print("computeBearMood")
         if (lastTaskCompleted) {
-            if (timePassed <= 10) {
+            if (calculateTimeElapsed(timeTaskCompleted) <= 10) {
                 setBearMood("happy")
             } else {
                 setBearMood("girl")
@@ -191,21 +212,24 @@ class ViewController: UIViewController {
         }
     }
     
-    func calculateTimeElapsed() -> Int{
+    //currently returns seconds elapsed, for demo purposes; in the real thing, multiply * 60 to use minutes
+    func calculateTimeElapsed(start:NSDate) -> Double{
         let date = NSDate()
-        let calendar = NSCalendar.currentCalendar()
-        let components = calendar.components([.Hour, .Minute, .Second], fromDate: date)
-        let hr = components.hour
-        let mins = components.minute
-        let secs = components.second
         
-        //        let hourDiff = hr - task.hour
-        //        let minDiff = mins - task.minute
-        //
-        //        let minElapsed = (hourDiff * 60 + minDiff)
-        //        let minElapsed = 45.0
-        let secondsElapsed = secs - secondTest
-        return secondsElapsed
+        var elapsed = abs(start.timeIntervalSinceNow)
+        
+        let dateComponentsFormatter = NSDateComponentsFormatter()
+        dateComponentsFormatter.unitsStyle = NSDateComponentsFormatterUnitsStyle.Abbreviated
+        dateComponentsFormatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehavior.DropAll
+        let stringDiff = dateComponentsFormatter.stringFromTimeInterval(elapsed)
+        print("time elapsed (seconds , formatted-time): ")
+        print(elapsed)
+        print(stringDiff)
+        
+        return elapsed
+//        var firstReminderTime = toothbrushAlert_time.dateByAddingTimeInterval(30*60) //30 mins after notif, give icon
+//        var secondReminderTime = firstReminderTime.dateByAddingTimeInterval(30*60)
+
     }
     
     func processNewTask() {
