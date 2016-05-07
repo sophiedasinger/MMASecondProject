@@ -20,18 +20,12 @@ class ViewController: UIViewController {
     let notif = UILocalNotification()
     var toothbrushAlert_time = NSDate()
     var timeTaskCompleted = NSDate()
-    
     var secondTest = 0
     
     
     override func viewDidLoad() {
-        echoTest()
+        //echoTest()
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-        // getData continuously
-        //
-        // computeBearMood continuously
-        //setBearMood("neutral")
         getBrushTime()
         
         notif.alertAction = "Open"
@@ -41,11 +35,7 @@ class ViewController: UIViewController {
         dateFire.minute = 0
         notif.fireDate = NSDate(timeIntervalSinceNow: 5)
         let task = taskTime(hour: 6, minute: 0, notification: notif)
-        
-        var image: UIImage = UIImage(named: "happy-face")!
-        bearImage.image = image
-//        let getDataTimer = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: Selector("getData"), userInfo: nil, repeats: true)
-//        let getDataTimer = NSTimer.scheduledTimerWithTimeInterval(9.0, target: self, selector: Selector("setBearMood"), userInfo: nil, repeats: true)
+        UIApplication.sharedApplication().scheduleLocalNotification(notif)
     }
     
     override func didReceiveMemoryWarning() {
@@ -54,36 +44,40 @@ class ViewController: UIViewController {
     }
     
     func getBrushTime() {
-        
         //toothbrush original alert time
-        var brushComp:NSDateComponents = NSDateComponents()
+        let brushComp:NSDateComponents = NSDateComponents()
         brushComp.timeZone = NSTimeZone.localTimeZone()
         brushComp.year = 2016;
         brushComp.month = 05;
         brushComp.day = 06;
         brushComp.hour = 09;
         brushComp.minute = 30;
-        var cal:NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
-        var date:NSDate = cal.dateFromComponents(brushComp)!
+        let cal:NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
+        let date:NSDate = cal.dateFromComponents(brushComp)!
         toothbrushAlert_time = date
 
         print("tooth time: ")
         print(toothbrushAlert_time)
         
-        calculateTimeElapsed(toothbrushAlert_time)
+        timePassed = calculateTimeElapsed(toothbrushAlert_time)
+        computeBearMood()
     }
     
-
+    /* test for web socket
+     *
+     */
     func echoTest(){
         let ws = WebSocket("wss://ws.pusherapp.com:443/app/cfb59a45c6610968c157?client=iOS-libPusher&version=3.0&protocol=5")
         ws.event.open = {
-            print("opened")
+            print("opened web socket")
+            // Open websocket connection
             let jsonObject: [String: AnyObject] = [
                 "event": "pusher:subscribe",
                 "data": [
                     "channel": "test_channel",
                 ]
             ]
+            // Subscribe to channel
             ws.send(self.jsonStringify(jsonObject))
         }
         ws.event.close = { code, reason, clean in
@@ -95,20 +89,22 @@ class ViewController: UIViewController {
         ws.event.message = { message in
             if let text = message as? String {
                 print("recv: \(text)")
-
+                self.lastTaskCompleted = true // Receiving data from server - therefore, Alexa has completed the task
+                self.timePassed = self.calculateTimeElapsed(NSDate()) // Reset timePassed based on current time
             }
         }
     }
 
-    // Source: https://medium.com/swift-programming/groundup-json-stringify-in-swift-b2d805458985#.w6el4l4mm
-    
+    /* Source: https://medium.com/swift-programming/groundup-json-stringify-in-swift-b2d805458985#.w6el4l4mm
+     * emulates JSON.stringify() functionality
+     *
+     * @param {AnyObject} jsonObject
+     * @return {String}
+     */
     func jsonStringify(jsonObject: AnyObject) -> String {
         var jsonString: String = ""
-
         switch jsonObject {
-            
         case _ as [String: AnyObject] :
-            
             let tempObject: [String: AnyObject] = jsonObject as! [String: AnyObject]
             jsonString += "{"
             for (key , value) in tempObject {
@@ -119,9 +115,7 @@ class ViewController: UIViewController {
                 jsonString += jsonStringify(value)
             }
             jsonString += "}"
-            
         case _ as [AnyObject] :
-            
             jsonString += "["
             for i in 0..<jsonObject.count {
                 if i > 0 {
@@ -130,13 +124,9 @@ class ViewController: UIViewController {
                 jsonString += jsonStringify(jsonObject[i])
             }
             jsonString += "]"
-            
         case _ as String :
-            
             jsonString += ("\"" + String(jsonObject) + "\"")
-            
         case _ as NSNumber :
-            
             if jsonObject.isEqualToValue(NSNumber(bool: true)) {
                 jsonString += "true"
             } else if jsonObject.isEqualToValue(NSNumber(bool: false)) {
@@ -144,38 +134,16 @@ class ViewController: UIViewController {
             } else {
                 return String(jsonObject)
             }
-            
         default :
-            
             jsonString += ""
         }
         return jsonString
     }
     
-
-    func getData() {
-        let url = NSURL(string: "https://peaceful-woodland-42419.herokuapp.com/")
-        let session = NSURLSession.sharedSession()
-        
-        let dataTask = session.dataTaskWithURL(url!) {
-            data, response, error in
-            dispatch_async(dispatch_get_main_queue()) {
-                UIApplication.sharedApplication().networkActivityIndicatorVisible = false
-                if let error = error {
-                    print(error.localizedDescription)
-                } else if let httpResponse = response as? NSHTTPURLResponse {
-                    if httpResponse.statusCode == 200 {
-                        print("successful request")
-                        let dataString = NSString(data: data!, encoding: NSUTF8StringEncoding)
-                        self.parseData(dataString! as String)
-                    }
-                }
-            }
-            
-        }
-        dataTask.resume()
-    }
-    
+    /* parse a json formatted string
+     *
+     * @param {String} jsonStr
+     */
     func parseData(jsonStr: String) {
         timePassed = calculateTimeElapsed(toothbrushAlert_time)
         
@@ -194,29 +162,40 @@ class ViewController: UIViewController {
         }
     }
     
+    /* computes current bear mood based on time elapsed
+     *
+     */
     func computeBearMood() {
         print("computeBearMood")
         if (lastTaskCompleted) {
-            if (calculateTimeElapsed(timeTaskCompleted) <= 10) {
+            if (timePassed <= 10) {
+                print(1)
                 setBearMood("happy")
             } else {
+                print(2)
                 setBearMood("girl")
             }
         } else if (timePassed > 30) {
+            print(3)
             print("here")
             setBearMood("neutral")
         } else if (timePassed <= 60) {
+            print(4)
             setBearMood("unhappy")
         } else if (timePassed > 120) {
+            print(5)
             setBearMood("sad")
         }
     }
     
+    /* calculates the time elapsed since scheduled task
+     *
+     * @param {NSDate} start -- time of assigned task
+     * @return {Double}
+     */
     //currently returns seconds elapsed, for demo purposes; in the real thing, multiply * 60 to use minutes
     func calculateTimeElapsed(start:NSDate) -> Double{
-        let date = NSDate()
-        
-        var elapsed = abs(start.timeIntervalSinceNow)
+        let elapsed = abs(start.timeIntervalSinceNow)
         
         let dateComponentsFormatter = NSDateComponentsFormatter()
         dateComponentsFormatter.unitsStyle = NSDateComponentsFormatterUnitsStyle.Abbreviated
@@ -237,22 +216,27 @@ class ViewController: UIViewController {
         lastTaskCompleted = false
     }
     
+    /* changes the image of the bear
+     * 
+     * @param {String} mood
+     */
     func setBearMood(mood: String) {
         if (mood ==  "happy") {
-            var image: UIImage = UIImage(named: "superhappy-face")!
+            let image: UIImage = UIImage(named: "superhappy-face")!
             bearImage.image = image
         } else if (mood == "neutral") {
             print("neutral face")
-            var image: UIImage = UIImage(named: "happy-face")!
+            let image: UIImage = UIImage(named: "happy-face")!
             bearImage.image = image
         } else if (mood == "unhappy") {
-            var image: UIImage = UIImage(named: "unhappy-face")!
+            let image: UIImage = UIImage(named: "unhappy-face")!
             bearImage.image = image
         } else if (mood == "sad") {
-            var image: UIImage = UIImage(named: "sad-face")!
+            let image: UIImage = UIImage(named: "sad-face")!
             bearImage.image = image
         } else if (mood == "girl") {
-            var image: UIImage = UIImage(named: "girl")!
+            print("here")
+            let image: UIImage = UIImage(named: "girl")!
             bearImage.image = image
         }
         
