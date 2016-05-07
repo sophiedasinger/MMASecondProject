@@ -13,11 +13,11 @@ import Foundation
 class ViewController: UIViewController {
     
     @IBOutlet weak var bearImage: UIImageView!
-    var lastTaskCompleted: Bool = true
+    var lastTaskCompleted: Bool = false
 
 
     let notif = UILocalNotification()
-    var toothbrushAlert_time = NSDate()
+    var toothbrushAlert_time = NSDate(timeIntervalSinceNow: 5) //take out timeInterval after demo
     var timeTaskCompleted = NSDate()
     var secondTest = 0
     var timer:NSTimer = NSTimer()
@@ -32,7 +32,7 @@ class ViewController: UIViewController {
         self.bearImage.image = image
         
         connectToSocket()
-        getBrushTime()
+        //getBrushTime()
         
         notif.alertAction = "Open"
         notif.alertBody = "Time to brush your teeth"
@@ -48,6 +48,8 @@ class ViewController: UIViewController {
         timer = NSTimer(fireDate: NSDate(timeIntervalSinceNow: 5), interval: 2, target: self, selector: Selector("computeBearMood"), userInfo: nil, repeats: true)
         NSRunLoop.mainRunLoop().addTimer(timer, forMode: NSRunLoopCommonModes)
         
+
+        
     }
     
     override func didReceiveMemoryWarning() {
@@ -61,9 +63,9 @@ class ViewController: UIViewController {
         brushComp.timeZone = NSTimeZone.localTimeZone()
         brushComp.year = 2016;
         brushComp.month = 05;
-        brushComp.day = 06;
-        brushComp.hour = 09;
-        brushComp.minute = 30;
+        brushComp.day = 07;
+        brushComp.hour = 14;
+        brushComp.minute = 47;
         let cal:NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
         let date:NSDate = cal.dateFromComponents(brushComp)!
         toothbrushAlert_time = date
@@ -192,16 +194,16 @@ class ViewController: UIViewController {
         let timePassed = calculateTimeElapsed(toothbrushAlert_time)
         print("computeBearMood")
         if (lastTaskCompleted) {
-            if (calculateTimeElapsed(timeTaskCompleted) <= 3) {
+            if (calculateTimeElapsed(timeTaskCompleted) <= 2) {
                 setBearMood("happy")
             } else {
                 setBearMood("girl")
             }
-        } else if (timePassed > 30) {
+        } else if (timePassed > 10 && timePassed < 25) {
             setBearMood("neutral")
-        } else if (timePassed <= 60) {
+        } else if (timePassed >= 25 && timePassed < 40) {
             setBearMood("unhappy")
-        } else if (timePassed > 120) {
+        } else if (timePassed >= 40) {
             setBearMood("sad")
         }
     }
