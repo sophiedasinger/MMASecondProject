@@ -205,6 +205,8 @@ class ViewController: UIViewController {
             setBearMood("unhappy")
         } else if (timePassed >= 40) {
             setBearMood("sad")
+        } else if (timePassed >= 50) { //JUST FOR TESTING, DELETE!
+            lastTaskCompleted = true
         }
     }
     
@@ -246,13 +248,13 @@ class ViewController: UIViewController {
             bearImage.image = image
         } else if (mood == "neutral") {
             print("neutral face")
-            let image: UIImage = UIImage(named: "happy-face")!
+            let image: UIImage = UIImage(named: "reminder-1")!
             bearImage.image = image
         } else if (mood == "unhappy") {
-            let image: UIImage = UIImage(named: "unhappy-face")!
+            let image: UIImage = UIImage(named: "reminder-2")!
             bearImage.image = image
         } else if (mood == "sad") {
-            let image: UIImage = UIImage(named: "sad-face")!
+            let image: UIImage = UIImage(named: "reminder-3")!
             bearImage.image = image
         } else if (mood == "girl") {
             print("here")
