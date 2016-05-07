@@ -14,18 +14,24 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var bearImage: UIImageView!
     var lastTaskCompleted: Bool = true
-    var timePassed:Double = 0 // time elapsed since task assigned
 
 
     let notif = UILocalNotification()
     var toothbrushAlert_time = NSDate()
     var timeTaskCompleted = NSDate()
     var secondTest = 0
+    var timer:NSTimer = NSTimer()
+    var numBrushes = 0
+
     
     
     override func viewDidLoad() {
-        echoTest()
         super.viewDidLoad()
+        // Initialize bear image
+        let image: UIImage = UIImage(named: "happy-face")!
+        self.bearImage.image = image
+        
+        connectToSocket()
         getBrushTime()
         
         notif.alertAction = "Open"
@@ -39,8 +45,9 @@ class ViewController: UIViewController {
         
         
         // set computeBearMood to start being called repeatedly at scheduled time
-        let timer = NSTimer(fireDate: NSDate(timeIntervalSinceNow: 5), interval: 2, target: self, selector: Selector("computeBearMood"), userInfo: nil, repeats: true)
+        timer = NSTimer(fireDate: NSDate(timeIntervalSinceNow: 5), interval: 2, target: self, selector: Selector("computeBearMood"), userInfo: nil, repeats: true)
         NSRunLoop.mainRunLoop().addTimer(timer, forMode: NSRunLoopCommonModes)
+        
     }
     
     override func didReceiveMemoryWarning() {
@@ -63,15 +70,12 @@ class ViewController: UIViewController {
 
         print("tooth time: ")
         print(toothbrushAlert_time)
-        
-        timePassed = calculateTimeElapsed(toothbrushAlert_time)
-        computeBearMood()
     }
     
-    /* test for web socket
+    /* connect to web socket and handle receiving data
      *
      */
-    func echoTest(){
+    func connectToSocket(){
         let ws = WebSocket("wss://ws.pusherapp.com:443/app/cfb59a45c6610968c157?client=iOS-libPusher&version=3.0&protocol=5")
         ws.event.open = {
             print("opened web socket")
@@ -98,9 +102,23 @@ class ViewController: UIViewController {
                 let parsedServerData = self.jsonParse(serverData!)
                 let side = parsedServerData["side"] as! String?
                 if (side != nil) {
-                    self.lastTaskCompleted = true // Receiving data from server - therefore, Alexa has completed the task on the bear
-                    self.timePassed = self.calculateTimeElapsed(NSDate()) // Reset timePassed based on current time
-                    self.computeBearMood()
+                    // change pic based on side, 10x
+                    if (self.numBrushes < 10) {
+                        self.numBrushes += 1
+                        if (side == "left") {
+                            let image: UIImage = UIImage(named: "happy-face")!
+                            self.bearImage.image = image
+                        } else {
+                            let image: UIImage = UIImage(named: "sad-face")!
+                            self.bearImage.image = image
+                        }
+                    } else {
+                        self.numBrushes = 0 // reset numBrushes
+                        self.lastTaskCompleted = true // Receiving data from server - therefore, Alexa has completed the task on the bear
+                        self.timer.invalidate() // invalidate timer that is calling computeBearMood
+                        self.timeTaskCompleted = NSDate()
+                        self.computeBearMood() // call computeBearMood to set to girl image now that task is complete
+                    }
                 }
             }
         }
@@ -167,35 +185,14 @@ class ViewController: UIViewController {
         return jsonString
     }
     
-    /* parse a json formatted string
-     *
-     * @param {String} jsonStr
-     */
-    func parseData(jsonStr: String) {
-        timePassed = calculateTimeElapsed(toothbrushAlert_time)
-        
-        var data: NSData = jsonStr.dataUsingEncoding(NSUTF8StringEncoding)!
-        do {
-            let json = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
-            if ((json.count) != nil) {
-                timeTaskCompleted = NSDate() //current time Completed
-                lastTaskCompleted = true
-                //computeTimePassed(json[1])
-            }
-            computeBearMood()
-        } catch {
-            computeBearMood()
-            print("error serializing JSON: \(error)")
-        }
-    }
-    
     /* computes current bear mood based on time elapsed
      *
      */
     func computeBearMood() {
+        let timePassed = calculateTimeElapsed(toothbrushAlert_time)
         print("computeBearMood")
         if (lastTaskCompleted) {
-            if (timePassed <= 10) {
+            if (calculateTimeElapsed(timeTaskCompleted) <= 3) {
                 setBearMood("happy")
             } else {
                 setBearMood("girl")
