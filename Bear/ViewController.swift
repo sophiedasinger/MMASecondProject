@@ -24,7 +24,7 @@ class ViewController: UIViewController {
     
     
     override func viewDidLoad() {
-        //echoTest()
+        echoTest()
         super.viewDidLoad()
         getBrushTime()
         
@@ -34,8 +34,13 @@ class ViewController: UIViewController {
         dateFire.hour = 6
         dateFire.minute = 0
         notif.fireDate = NSDate(timeIntervalSinceNow: 5)
-        let task = taskTime(hour: 6, minute: 0, notification: notif)
+        //let task = taskTime(hour: 6, minute: 0, notification: notif)
         UIApplication.sharedApplication().scheduleLocalNotification(notif)
+        
+        
+        // set computeBearMood to start being called repeatedly at scheduled time
+        let timer = NSTimer(fireDate: NSDate(timeIntervalSinceNow: 5), interval: 2, target: self, selector: Selector("computeBearMood"), userInfo: nil, repeats: true)
+        NSRunLoop.mainRunLoop().addTimer(timer, forMode: NSRunLoopCommonModes)
     }
     
     override func didReceiveMemoryWarning() {
@@ -88,10 +93,32 @@ class ViewController: UIViewController {
         }
         ws.event.message = { message in
             if let text = message as? String {
-                print("recv: \(text)")
-                self.lastTaskCompleted = true // Receiving data from server - therefore, Alexa has completed the task
-                self.timePassed = self.calculateTimeElapsed(NSDate()) // Reset timePassed based on current time
+                let response = self.jsonParse(text)
+                let serverData = response["data"]! as! String?
+                let parsedServerData = self.jsonParse(serverData!)
+                let side = parsedServerData["side"] as! String?
+                if (side != nil) {
+                    self.lastTaskCompleted = true // Receiving data from server - therefore, Alexa has completed the task on the bear
+                    self.timePassed = self.calculateTimeElapsed(NSDate()) // Reset timePassed based on current time
+                    self.computeBearMood()
+                }
             }
+        }
+    }
+    
+    /* emulates JSON.parse() functionality
+     *
+     * @param {String} jsonStr
+     * @return {Object}
+     */
+    func jsonParse(jsonStr: String) -> AnyObject {
+        let data: NSData = jsonStr.dataUsingEncoding(NSUTF8StringEncoding)!
+        do {
+            let json = try NSJSONSerialization.JSONObjectWithData(data, options: .AllowFragments)
+            return json
+        } catch {
+            print("error serializing JSON: \(error)")
+            return []
         }
     }
 
@@ -169,21 +196,15 @@ class ViewController: UIViewController {
         print("computeBearMood")
         if (lastTaskCompleted) {
             if (timePassed <= 10) {
-                print(1)
                 setBearMood("happy")
             } else {
-                print(2)
                 setBearMood("girl")
             }
         } else if (timePassed > 30) {
-            print(3)
-            print("here")
             setBearMood("neutral")
         } else if (timePassed <= 60) {
-            print(4)
             setBearMood("unhappy")
         } else if (timePassed > 120) {
-            print(5)
             setBearMood("sad")
         }
     }
