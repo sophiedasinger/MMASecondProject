@@ -23,13 +23,17 @@ class ViewController: UIViewController {
     var timer:NSTimer = NSTimer()
     var numBrushes = 0
 
+    func set_init_vals() {
+        numBrushes = 0
+        lastTaskCompleted = false
+        self.bearImage.image = UIImage(named: "happy-face")
+    }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Initialize bear image
-        let image: UIImage = UIImage(named: "happy-face")!
-        self.bearImage.image = image
+        set_init_vals()
         
         connectToSocket()
         //getBrushTime()
@@ -105,7 +109,7 @@ class ViewController: UIViewController {
                 let side = parsedServerData["side"] as! String?
                 if (side != nil) {
                     // change pic based on side, 10x
-                    if (self.numBrushes < 10) {
+                    if (self.numBrushes < 10) {     //hasn't finished brushing bear's teeth
                         self.numBrushes += 1
                         if (side == "left") {
                             let image: UIImage = UIImage(named: "happy-face")!
@@ -114,7 +118,7 @@ class ViewController: UIViewController {
                             let image: UIImage = UIImage(named: "sad-face")!
                             self.bearImage.image = image
                         }
-                    } else {
+                    } else {    //finished bear's teeth, start reading for girl's teeth
                         self.numBrushes = 0 // reset numBrushes
                         self.lastTaskCompleted = true // Receiving data from server - therefore, Alexa has completed the task on the bear
                         self.timer.invalidate() // invalidate timer that is calling computeBearMood
@@ -122,6 +126,7 @@ class ViewController: UIViewController {
                         self.computeBearMood() // call computeBearMood to set to girl image now that task is complete
                     }
                 }
+                
             }
         }
     }
@@ -200,12 +205,13 @@ class ViewController: UIViewController {
                 setBearMood("girl")
             }
         } else if (timePassed > 10 && timePassed < 25) {
-            setBearMood("neutral")
+            setBearMood("reminder")
         } else if (timePassed >= 25 && timePassed < 40) {
             setBearMood("unhappy")
-        } else if (timePassed >= 40) {
+        } else if (timePassed >= 40 && timePassed < 50) {
             setBearMood("sad")
         } else if (timePassed >= 50) { //JUST FOR TESTING, DELETE!
+            timeTaskCompleted = NSDate()
             lastTaskCompleted = true
         }
     }
@@ -248,6 +254,10 @@ class ViewController: UIViewController {
             bearImage.image = image
         } else if (mood == "neutral") {
             print("neutral face")
+            let image: UIImage = UIImage(named: "reminder-1")!
+            bearImage.image = image
+        } else if (mood == "reminder") {
+            print("first reminder")
             let image: UIImage = UIImage(named: "reminder-1")!
             bearImage.image = image
         } else if (mood == "unhappy") {
