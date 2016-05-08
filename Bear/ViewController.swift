@@ -27,9 +27,12 @@ class ViewController: UIViewController {
         numBrushes = 0
         lastTaskCompleted = false
         self.bearImage.image = UIImage(named: "happy-face")
+        // set computeBearMood to start being called repeatedly at scheduled time
+        timer = NSTimer(fireDate: NSDate(timeIntervalSinceNow: 7), interval: 2, target: self, selector: Selector("computeBearMood"), userInfo: nil, repeats: true)
+        NSRunLoop.mainRunLoop().addTimer(timer, forMode: NSRunLoopCommonModes)
     }
     
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Initialize bear image
@@ -46,12 +49,6 @@ class ViewController: UIViewController {
         notif.fireDate = NSDate(timeIntervalSinceNow: 5)
         //let task = taskTime(hour: 6, minute: 0, notification: notif)
         UIApplication.sharedApplication().scheduleLocalNotification(notif)
-        
-        
-        // set computeBearMood to start being called repeatedly at scheduled time
-        timer = NSTimer(fireDate: NSDate(timeIntervalSinceNow: 5), interval: 2, target: self, selector: Selector("computeBearMood"), userInfo: nil, repeats: true)
-        NSRunLoop.mainRunLoop().addTimer(timer, forMode: NSRunLoopCommonModes)
-        
 
         
     }
@@ -74,8 +71,6 @@ class ViewController: UIViewController {
         let date:NSDate = cal.dateFromComponents(brushComp)!
         toothbrushAlert_time = date
 
-        print("tooth time: ")
-        print(toothbrushAlert_time)
     }
     
     /* connect to web socket and handle receiving data
@@ -107,8 +102,10 @@ class ViewController: UIViewController {
                 let serverData = response["data"]! as! String?
                 let parsedServerData = self.jsonParse(serverData!)
                 let side = parsedServerData["side"] as! String?
+                let accelerometerData = parsedServerData["accel"] as! String?
                 if (side != nil) {
                     // change pic based on side, 10x
+                    self.timer.invalidate() // invalidate timer that is calling computeBearMood
                     if (self.numBrushes < 10) {     //hasn't finished brushing bear's teeth
                         self.numBrushes += 1
                         if (side == "left") {
@@ -118,18 +115,35 @@ class ViewController: UIViewController {
                             let image: UIImage = UIImage(named: "sad-face")!
                             self.bearImage.image = image
                         }
-                    } else {    //finished bear's teeth, start reading for girl's teeth
-                        self.numBrushes = 0 // reset numBrushes
-                        self.lastTaskCompleted = true // Receiving data from server - therefore, Alexa has completed the task on the bear
-                        self.timer.invalidate() // invalidate timer that is calling computeBearMood
-                        self.timeTaskCompleted = NSDate()
-                        self.computeBearMood() // call computeBearMood to set to girl image now that task is complete
+                        if (self.numBrushes == 9) { //finished brushing!
+                            self.numBrushes = 0 // reset numBrushes
+                            self.lastTaskCompleted = true // Receiving data from server - therefore, Alexa has completed the task on the bear
+                            self.timeTaskCompleted = NSDate()
+                            self.computeBearMood() // call computeBearMood to set to girl image now that task is complete
+                            NSTimer.scheduledTimerWithTimeInterval(NSTimeInterval(3), target: self, selector: "computeBearMood", userInfo: nil, repeats: false)
+                        }
+                    }
+                } else if (accelerometerData != nil){    //will not be nil if girl is brushing teeth
+                    if (self.numBrushes < 10) {     //hasn't finished brushing girl's teeth
+                        self.numBrushes += 1
+                        if (accelerometerData == "left") {
+                            let image: UIImage = UIImage(named: "girl")!
+                            self.bearImage.image = image
+                        } else {
+                            let image: UIImage = UIImage(named: "happy-face")!
+                            self.bearImage.image = image
+                        }
+                        if (self.numBrushes == 9) { //finished brushing!
+                            self.set_init_vals()
+                            self.toothbrushAlert_time = NSDate(timeIntervalSinceNow: 5) //take out timeInterval after demo
+                        }
                     }
                 }
-                
             }
         }
     }
+    
+//    func processTask(
     
     /* emulates JSON.parse() functionality
      *
@@ -204,15 +218,12 @@ class ViewController: UIViewController {
             } else {
                 setBearMood("girl")
             }
-        } else if (timePassed > 10 && timePassed < 25) {
+        } else if (timePassed > 5 && timePassed < 10) {
             setBearMood("reminder")
-        } else if (timePassed >= 25 && timePassed < 40) {
+        } else if (timePassed >= 10 && timePassed < 15) {
             setBearMood("unhappy")
-        } else if (timePassed >= 40 && timePassed < 50) {
+        } else if (timePassed >= 15 && timePassed < 20) {
             setBearMood("sad")
-        } else if (timePassed >= 50) { //JUST FOR TESTING, DELETE!
-            timeTaskCompleted = NSDate()
-            lastTaskCompleted = true
         }
     }
     
@@ -229,13 +240,10 @@ class ViewController: UIViewController {
         dateComponentsFormatter.unitsStyle = NSDateComponentsFormatterUnitsStyle.Abbreviated
         dateComponentsFormatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehavior.DropAll
         let stringDiff = dateComponentsFormatter.stringFromTimeInterval(elapsed)
-        print("time elapsed (seconds , formatted-time): ")
-        print(elapsed)
-        print(stringDiff)
+//        print("time elapsed (seconds , formatted-time): ")
+//        print(stringDiff)
         
         return elapsed
-//        var firstReminderTime = toothbrushAlert_time.dateByAddingTimeInterval(30*60) //30 mins after notif, give icon
-//        var secondReminderTime = firstReminderTime.dateByAddingTimeInterval(30*60)
 
     }
     
@@ -253,11 +261,9 @@ class ViewController: UIViewController {
             let image: UIImage = UIImage(named: "superhappy-face")!
             bearImage.image = image
         } else if (mood == "neutral") {
-            print("neutral face")
             let image: UIImage = UIImage(named: "reminder-1")!
             bearImage.image = image
         } else if (mood == "reminder") {
-            print("first reminder")
             let image: UIImage = UIImage(named: "reminder-1")!
             bearImage.image = image
         } else if (mood == "unhappy") {
@@ -267,7 +273,6 @@ class ViewController: UIViewController {
             let image: UIImage = UIImage(named: "reminder-3")!
             bearImage.image = image
         } else if (mood == "girl") {
-            print("here")
             let image: UIImage = UIImage(named: "girl")!
             bearImage.image = image
         }
