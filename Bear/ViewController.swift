@@ -10,20 +10,21 @@ import UIKit
 import Foundation
 
 
-class ViewController: UIViewController {
+class ViewController: UIViewController/*, UIPickerViewDataSource, UIPickerViewDelegate*/ {
     
     @IBOutlet weak var bearImage: UIImageView!
     @IBOutlet weak var barImage: UIImageView!
     var lastTaskCompleted: Bool = false
     var loadingBar = ["loading1", "loading2", "loading3", "loading4", "loading5", "loading6", "loading7", "loading8", "loading9", "loadingA", "loadingB"]
-
+    //@IBOutlet weak var taskOptions: UIPickerView!
+    
     let notif = UILocalNotification()
     var toothbrushAlert_time = NSDate(timeIntervalSinceNow: 5) //take out timeInterval after demo
     var timeTaskCompleted = NSDate()
     var secondTest = 0
     var timer:NSTimer = NSTimer()
     var numBrushes = 0
-
+    
     func set_init_vals() {
         numBrushes = 0
         lastTaskCompleted = false
@@ -34,7 +35,7 @@ class ViewController: UIViewController {
         NSRunLoop.mainRunLoop().addTimer(timer, forMode: NSRunLoopCommonModes)
     }
     
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Initialize bear image
@@ -51,7 +52,7 @@ class ViewController: UIViewController {
         notif.fireDate = NSDate(timeIntervalSinceNow: 5)
         //let task = taskTime(hour: 6, minute: 0, notification: notif)
         UIApplication.sharedApplication().scheduleLocalNotification(notif)
-
+        
         
     }
     
@@ -72,12 +73,12 @@ class ViewController: UIViewController {
         let cal:NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
         let date:NSDate = cal.dateFromComponents(brushComp)!
         toothbrushAlert_time = date
-
+        
     }
     
     /* connect to web socket and handle receiving data
-     *
-     */
+    *
+    */
     func connectToSocket(){
         let ws = WebSocket("wss://ws.pusherapp.com:443/app/cfb59a45c6610968c157?client=iOS-libPusher&version=3.0&protocol=5")
         ws.event.open = {
@@ -105,17 +106,17 @@ class ViewController: UIViewController {
                 let parsedServerData = self.jsonParse(serverData!)
                 let side = parsedServerData["side"] as! String?
                 let accelerometerData = parsedServerData["accel"] as! String?
-                if (side != nil) {
+                if (side != nil && self.lastTaskCompleted == false) {
                     // change pic based on side, 10x
                     self.timer.invalidate() // invalidate timer that is calling computeBearMood
                     if (self.numBrushes < 10) {     //hasn't finished brushing bear's teeth
                         self.numBrushes += 1
                         self.barImage.image = UIImage(named: self.loadingBar[self.numBrushes + 1])
-                        if (side == "left") {
-                            let image: UIImage = UIImage(named: "happy-face")!
+                        if (side == "l") {
+                            let image: UIImage = UIImage(named: "bear-brush-left")!
                             self.bearImage.image = image
                         } else {
-                            let image: UIImage = UIImage(named: "sad-face")!
+                            let image: UIImage = UIImage(named: "bear-brush-right")!
                             self.bearImage.image = image
                         }
                         if (self.numBrushes == 9) { //finished brushing!
@@ -126,15 +127,15 @@ class ViewController: UIViewController {
                             NSTimer.scheduledTimerWithTimeInterval(NSTimeInterval(3), target: self, selector: "computeBearMood", userInfo: nil, repeats: false)
                         }
                     }
-                } else if (accelerometerData != nil){    //will not be nil if girl is brushing teeth
+                } else if (side != nil && self.lastTaskCompleted == true){    //will not be nil if girl is brushing teeth
                     if (self.numBrushes < 10) {     //hasn't finished brushing girl's teeth
                         self.numBrushes += 1
                         self.barImage.image = UIImage(named: self.loadingBar[self.numBrushes + 1])
-                        if (accelerometerData == "left") {
-                            let image: UIImage = UIImage(named: "girl")!
+                        if (side == "l") {
+                            let image: UIImage = UIImage(named: "girl-brush-left")!
                             self.bearImage.image = image
                         } else {
-                            let image: UIImage = UIImage(named: "happy-face")!
+                            let image: UIImage = UIImage(named: "girl-brush-right")!
                             self.bearImage.image = image
                         }
                         if (self.numBrushes == 9) { //finished brushing!
@@ -147,13 +148,13 @@ class ViewController: UIViewController {
         }
     }
     
-//    func processTask(
+    //    func processTask(
     
     /* emulates JSON.parse() functionality
-     *
-     * @param {String} jsonStr
-     * @return {Object}
-     */
+    *
+    * @param {String} jsonStr
+    * @return {Object}
+    */
     func jsonParse(jsonStr: String) -> AnyObject {
         let data: NSData = jsonStr.dataUsingEncoding(NSUTF8StringEncoding)!
         do {
@@ -164,13 +165,13 @@ class ViewController: UIViewController {
             return []
         }
     }
-
+    
     /* Source: https://medium.com/swift-programming/groundup-json-stringify-in-swift-b2d805458985#.w6el4l4mm
-     * emulates JSON.stringify() functionality
-     *
-     * @param {AnyObject} jsonObject
-     * @return {String}
-     */
+    * emulates JSON.stringify() functionality
+    *
+    * @param {AnyObject} jsonObject
+    * @return {String}
+    */
     func jsonStringify(jsonObject: AnyObject) -> String {
         var jsonString: String = ""
         switch jsonObject {
@@ -211,8 +212,8 @@ class ViewController: UIViewController {
     }
     
     /* computes current bear mood based on time elapsed
-     *
-     */
+    *
+    */
     func computeBearMood() {
         let timePassed = calculateTimeElapsed(toothbrushAlert_time)
         print("computeBearMood")
@@ -224,6 +225,7 @@ class ViewController: UIViewController {
             }
         } else if (timePassed > 5 && timePassed < 10) {
             setBearMood("reminder")
+            self.barImage.image = UIImage(named: self.loadingBar[self.numBrushes])
         } else if (timePassed >= 10 && timePassed < 15) {
             setBearMood("unhappy")
         } else if (timePassed >= 15 && timePassed < 20) {
@@ -232,10 +234,10 @@ class ViewController: UIViewController {
     }
     
     /* calculates the time elapsed since scheduled task
-     *
-     * @param {NSDate} start -- time of assigned task
-     * @return {Double}
-     */
+    *
+    * @param {NSDate} start -- time of assigned task
+    * @return {Double}
+    */
     //currently returns seconds elapsed, for demo purposes; in the real thing, multiply * 60 to use minutes
     func calculateTimeElapsed(start:NSDate) -> Double{
         let elapsed = abs(start.timeIntervalSinceNow)
@@ -244,11 +246,11 @@ class ViewController: UIViewController {
         dateComponentsFormatter.unitsStyle = NSDateComponentsFormatterUnitsStyle.Abbreviated
         dateComponentsFormatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehavior.DropAll
         let stringDiff = dateComponentsFormatter.stringFromTimeInterval(elapsed)
-//        print("time elapsed (seconds , formatted-time): ")
-//        print(stringDiff)
+        //        print("time elapsed (seconds , formatted-time): ")
+        //        print(stringDiff)
         
         return elapsed
-
+        
     }
     
     func processNewTask() {
@@ -257,9 +259,9 @@ class ViewController: UIViewController {
     }
     
     /* changes the image of the bear
-     * 
-     * @param {String} mood
-     */
+    *
+    * @param {String} mood
+    */
     func setBearMood(mood: String) {
         if (mood ==  "happy") {
             let image: UIImage = UIImage(named: "superhappy-face")!
@@ -277,27 +279,27 @@ class ViewController: UIViewController {
             let image: UIImage = UIImage(named: "reminder-3")!
             bearImage.image = image
         } else if (mood == "girl") {
-            let image: UIImage = UIImage(named: "girl")!
+            let image: UIImage = UIImage(named: "girl-no-brush")!
             bearImage.image = image
         }
         
     }
     
     /*
-     * Add new task functions.
-   
+    * Add new task functions.
+    
     var tasks = ["Brush Teeth", "Get Dressed", "Brush Hair", "Feed Self"]
     
     func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
-        return 1
+    return 1
     }
     
     func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return tasks.count
+    return tasks.count
     }
     
     func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String! {
-        return tasks[row]
+    return tasks[row]
     }*/
     
 }
