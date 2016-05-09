@@ -9,6 +9,7 @@ An occupational therapy-focused iOS app. It is used to help a patient improve th
   * BearKare accessories are not final but currently consist of an Arduino Yun and an arangement of hall sensors in the bear,
   * The toothbrush contains a magnet to trigger the hall sensors.
   * The Bracelet contains an accelerometer. 
+* Server hosted on Heroku (https://peaceful-woodland-42419.herokuapp.com/) - see Server directory for readme
 
 ## Instructions for use
 * The user receives a local notification for a scheduled task when outside of the app. This can either be a banner or an alert, configurable via the device settings. 
