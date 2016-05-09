@@ -354,7 +354,7 @@ private class Delegate : NSObject, NSStreamDelegate {
     }
 }
 
-
+/*TODO: change back before merging!*/
 @asmname("zlibVersion") private func zlibVersion() -> COpaquePointer
 @asmname("deflateInit2_") private func deflateInit2(strm : UnsafeMutablePointer<Void>, level : CInt, method : CInt, windowBits : CInt, memLevel : CInt, strategy : CInt, version : COpaquePointer, stream_size : CInt) -> CInt
 @asmname("deflateInit_") private func deflateInit(strm : UnsafeMutablePointer<Void>, level : CInt, version : COpaquePointer, stream_size : CInt) -> CInt

@@ -10,11 +10,13 @@ import UIKit
 import Foundation
 
 
-class ViewController: UIViewController {
+class ViewController: UIViewController/*, UIPickerViewDataSource, UIPickerViewDelegate*/ {
     
     @IBOutlet weak var bearImage: UIImageView!
+    @IBOutlet weak var barImage: UIImageView!
     var lastTaskCompleted: Bool = false
-
+    var loadingBar = ["loading1", "loading2", "loading3", "loading4", "loading5", "loading6", "loading7", "loading8", "loading9", "loadingA", "loadingB"]
+    //@IBOutlet weak var taskOptions: UIPickerView!
 
     let notif = UILocalNotification()
     var toothbrushAlert_time = NSDate(timeIntervalSinceNow: 5) //take out timeInterval after demo
@@ -27,6 +29,7 @@ class ViewController: UIViewController {
         numBrushes = 0
         lastTaskCompleted = false
         self.bearImage.image = UIImage(named: "happy-face")
+        self.barImage.image = UIImage(named: "loading0")
         // set computeBearMood to start being called repeatedly at scheduled time
         timer = NSTimer(fireDate: NSDate(timeIntervalSinceNow: 7), interval: 2, target: self, selector: Selector("computeBearMood"), userInfo: nil, repeats: true)
         NSRunLoop.mainRunLoop().addTimer(timer, forMode: NSRunLoopCommonModes)
@@ -108,6 +111,7 @@ class ViewController: UIViewController {
                     self.timer.invalidate() // invalidate timer that is calling computeBearMood
                     if (self.numBrushes < 10) {     //hasn't finished brushing bear's teeth
                         self.numBrushes += 1
+                        self.barImage.image = UIImage(named: self.loadingBar[self.numBrushes + 1])
                         if (side == "left") {
                             let image: UIImage = UIImage(named: "happy-face")!
                             self.bearImage.image = image
@@ -126,6 +130,7 @@ class ViewController: UIViewController {
                 } else if (accelerometerData != nil){    //will not be nil if girl is brushing teeth
                     if (self.numBrushes < 10) {     //hasn't finished brushing girl's teeth
                         self.numBrushes += 1
+                        self.barImage.image = UIImage(named: self.loadingBar[self.numBrushes + 1])
                         if (accelerometerData == "left") {
                             let image: UIImage = UIImage(named: "girl")!
                             self.bearImage.image = image
@@ -220,6 +225,7 @@ class ViewController: UIViewController {
             }
         } else if (timePassed > 5 && timePassed < 10) {
             setBearMood("reminder")
+            self.barImage.image = UIImage(named: self.loadingBar[self.numBrushes])
         } else if (timePassed >= 10 && timePassed < 15) {
             setBearMood("unhappy")
         } else if (timePassed >= 15 && timePassed < 20) {
@@ -278,5 +284,23 @@ class ViewController: UIViewController {
         }
         
     }
+    
+    /*
+     * Add new task functions.
+   
+    var tasks = ["Brush Teeth", "Get Dressed", "Brush Hair", "Feed Self"]
+    
+    func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return tasks.count
+    }
+    
+    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String! {
+        return tasks[row]
+    }*/
+    
 }
 
