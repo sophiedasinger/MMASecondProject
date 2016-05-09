@@ -126,10 +126,13 @@ class ViewController: UIViewController/*, UIPickerViewDataSource, UIPickerViewDe
                             NSTimer.scheduledTimerWithTimeInterval(NSTimeInterval(3), target: self, selector: "computeBearMood", userInfo: nil, repeats: false)
                             NSTimer.scheduledTimerWithTimeInterval(NSTimeInterval(3), target: self, selector: "resetBar", userInfo: nil, repeats: false)
 
+                        } else {
+                            self.numBrushes += 1
                         }
-                        self.numBrushes += 1
                     }
                 } else if (side != nil && self.lastTaskCompleted == true){    //will not be nil if girl is brushing teeth
+                    print("num brushes: ")
+                    print(self.numBrushes)
                     if (self.numBrushes < 10) {     //hasn't finished brushing girl's teeth
                         self.barImage.image = UIImage(named: self.loadingBar[self.numBrushes + 1])
                         if (side == "l") {
@@ -221,7 +224,6 @@ class ViewController: UIViewController/*, UIPickerViewDataSource, UIPickerViewDe
     */
     func computeBearMood() {
         let timePassed = calculateTimeElapsed(toothbrushAlert_time)
-        print("computeBearMood")
         if (lastTaskCompleted) {
             if (calculateTimeElapsed(timeTaskCompleted) <= 2) {
                 setBearMood("happy")
