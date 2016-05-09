@@ -10,13 +10,12 @@ import UIKit
 import Foundation
 
 
-class ViewController: UIViewController/*, UIPickerViewDataSource, UIPickerViewDelegate*/ {
+class ViewController: UIViewController {
     
     @IBOutlet weak var bearImage: UIImageView!
     @IBOutlet weak var barImage: UIImageView!
     var lastTaskCompleted: Bool = false
     var loadingBar = ["loading1", "loading2", "loading3", "loading4", "loading5", "loading6", "loading7", "loading8", "loading9", "loadingA", "loadingB"]
-    //@IBOutlet weak var taskOptions: UIPickerView!
 
     let notif = UILocalNotification()
     var toothbrushAlert_time = NSDate(timeIntervalSinceNow: 5) //take out timeInterval after demo
@@ -225,7 +224,6 @@ class ViewController: UIViewController/*, UIPickerViewDataSource, UIPickerViewDe
             }
         } else if (timePassed > 5 && timePassed < 10) {
             setBearMood("reminder")
-            self.barImage.image = UIImage(named: self.loadingBar[self.numBrushes])
         } else if (timePassed >= 10 && timePassed < 15) {
             setBearMood("unhappy")
         } else if (timePassed >= 15 && timePassed < 20) {
