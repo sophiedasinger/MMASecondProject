@@ -6,9 +6,10 @@ An occupational therapy-focused iOS app. It is used to help a patient improve th
 * iPhone 6 (should be run on simulator with iPhone 6 as target. In a future version, we would like to make this accessible to iPad users as well, however, the assets are specifically sized for the iPhone 6 currently)
 * Swift v 2.1.1
 * BearKare accesssories (toothbrush with sensor and wristband)
-  * BearKare accessories are not final but currently consist of an Arduino Yun and an arangement of hall sensors in the bear,
+  * BearKare accessories are not final but currently consist of an Arduino Yun and an arrangement of hall sensors in the bear,
   * The toothbrush contains a magnet to trigger the hall sensors.
-  * The Bracelet contains an accelerometer. 
+  * The bracelet contains an accelerometer. 
+* Server hosted on Heroku (https://peaceful-woodland-42419.herokuapp.com/) - see Server directory for readme
 
 ## Instructions for use
 * The user receives a local notification for a scheduled task when outside of the app. This can either be a banner or an alert, configurable via the device settings. 
@@ -20,3 +21,4 @@ An occupational therapy-focused iOS app. It is used to help a patient improve th
 ## Limitations of prototype
 * Please note that for demo purposes, we have dramatically decreased the time intervals. In the production version of the app, it will be 30 minutes before the bear's "mood" changes.
 * In a production-ready version of this app, the user would be able to perform multiple ADLs.
+* A production-ready version would also have an interface for the caretaker/occupational therapist to schedule various ADLs and track the patient's progress. This would be separate from the mobile app, because the app is specifically for Alexa (or any patient) to use.
