@@ -28,7 +28,7 @@ class ViewController: UIViewController {
         numBrushes = 0
         lastTaskCompleted = false
         self.bearImage.image = UIImage(named: "happy-face")
-        self.barImage.image = UIImage(named: "loading0")
+        resetBar()
         // set computeBearMood to start being called repeatedly at scheduled time
         timer = NSTimer(fireDate: NSDate(timeIntervalSinceNow: 7), interval: 2, target: self, selector: Selector("computeBearMood"), userInfo: nil, repeats: true)
         NSRunLoop.mainRunLoop().addTimer(timer, forMode: NSRunLoopCommonModes)
@@ -109,7 +109,6 @@ class ViewController: UIViewController {
                     // change pic based on side, 10x
                     self.timer.invalidate() // invalidate timer that is calling computeBearMood
                     if (self.numBrushes < 10) {     //hasn't finished brushing bear's teeth
-                        self.numBrushes += 1
                         self.barImage.image = UIImage(named: self.loadingBar[self.numBrushes + 1])
                         if (side == "left") {
                             let image: UIImage = UIImage(named: "happy-face")!
@@ -124,11 +123,13 @@ class ViewController: UIViewController {
                             self.timeTaskCompleted = NSDate()
                             self.computeBearMood() // call computeBearMood to set to girl image now that task is complete
                             NSTimer.scheduledTimerWithTimeInterval(NSTimeInterval(3), target: self, selector: "computeBearMood", userInfo: nil, repeats: false)
+                            NSTimer.scheduledTimerWithTimeInterval(NSTimeInterval(3), target: self, selector: "resetBar", userInfo: nil, repeats: false)
+
                         }
+                        self.numBrushes += 1
                     }
                 } else if (accelerometerData != nil){    //will not be nil if girl is brushing teeth
                     if (self.numBrushes < 10) {     //hasn't finished brushing girl's teeth
-                        self.numBrushes += 1
                         self.barImage.image = UIImage(named: self.loadingBar[self.numBrushes + 1])
                         if (accelerometerData == "left") {
                             let image: UIImage = UIImage(named: "girl")!
@@ -141,10 +142,15 @@ class ViewController: UIViewController {
                             self.set_init_vals()
                             self.toothbrushAlert_time = NSDate(timeIntervalSinceNow: 5) //take out timeInterval after demo
                         }
+                        self.numBrushes += 1                        
                     }
                 }
             }
         }
+    }
+    
+    func resetBar() {
+        self.barImage.image = UIImage(named: "loading0")
     }
     
 //    func processTask(
