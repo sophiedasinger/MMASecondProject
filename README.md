@@ -21,3 +21,4 @@ An occupational therapy-focused iOS app. It is used to help a patient improve th
 ## Limitations of prototype
 * Please note that for demo purposes, we have dramatically decreased the time intervals. In the production version of the app, it will be 30 minutes before the bear's "mood" changes.
 * In a production-ready version of this app, the user would be able to perform multiple ADLs.
+* A production-ready version would also have an interface for the caretaker/occupational therapist to schedule various ADLs and track the patient's progress. This would be separate from the mobile app, because the app is specifically for Alexa (or any patient) to use.
