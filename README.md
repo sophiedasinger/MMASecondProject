@@ -6,6 +6,9 @@ An occupational therapy-focused iOS app. It is used to help a patient improve th
 * iPhone 6 (should be run on simulator with iPhone 6 as target. In a future version, we would like to make this accessible to iPad users as well, however, the assets are specifically sized for the iPhone 6 currently)
 * Swift v 2.1.1
 * BearKare accesssories (toothbrush with sensor and wristband)
+  * BearKare accessories are not final but currently consist of an Arduino Yun and an arangement of hall sensors in the bear,
+  * The toothbrush contains a magnet to trigger the hall sensors.
+  * The Bracelet contains an accelerometer. 
 
 ## Instructions for use
 * The user receives a local notification for a scheduled task when outside of the app. This can either be a banner or an alert, configurable via the device settings. 
