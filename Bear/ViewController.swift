@@ -2,7 +2,7 @@
 //  ViewController.swift
 //  Bear
 //
-//  Created by Sophie on 4/10/16.
+//  Created by Rachel and Sophie
 //  Copyright © 2016 Tufts. All rights reserved.
 //
 
@@ -10,16 +10,15 @@ import UIKit
 import Foundation
 
 
-class ViewController: UIViewController/*, UIPickerViewDataSource, UIPickerViewDelegate*/ {
+class ViewController: UIViewController {
     
     @IBOutlet weak var bearImage: UIImageView!
     @IBOutlet weak var barImage: UIImageView!
     var lastTaskCompleted: Bool = false
     var loadingBar = ["loading1", "loading2", "loading3", "loading4", "loading5", "loading6", "loading7", "loading8", "loading9", "loadingA", "loadingB"]
-    //@IBOutlet weak var taskOptions: UIPickerView!
     
     let notif = UILocalNotification()
-    var toothbrushAlert_time = NSDate(timeIntervalSinceNow: 5) //take out timeInterval after demo
+    var toothbrushAlert_time = NSDate(timeIntervalSinceNow: 5) //take out timeInterval after demo, this time gets set in a customizable function
     var timeTaskCompleted = NSDate()
     var secondTest = 0
     var timer:NSTimer = NSTimer()
@@ -38,11 +37,11 @@ class ViewController: UIViewController/*, UIPickerViewDataSource, UIPickerViewDe
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Initialize bear image
+
         set_init_vals()
         
         connectToSocket()
-        //getBrushTime()
+//        getADLTime("brush teeth", year: 2016, month: 05, day: 09, hour: 17, minute: 53)    //commented out for demo
         
         notif.alertAction = "Open"
         notif.alertBody = "Time to brush your teeth"
@@ -50,29 +49,42 @@ class ViewController: UIViewController/*, UIPickerViewDataSource, UIPickerViewDe
         dateFire.hour = 6
         dateFire.minute = 0
         notif.fireDate = NSDate(timeIntervalSinceNow: 5)
-        //let task = taskTime(hour: 6, minute: 0, notification: notif)
         UIApplication.sharedApplication().scheduleLocalNotification(notif)
-        
         
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
-    func getBrushTime() {
-        //toothbrush original alert time
-        let brushComp:NSDateComponents = NSDateComponents()
-        brushComp.timeZone = NSTimeZone.localTimeZone()
-        brushComp.year = 2016;
-        brushComp.month = 05;
-        brushComp.day = 07;
-        brushComp.hour = 14;
-        brushComp.minute = 47;
+    //  ** stackoverflow.com/questions/30619998/repeating-local-notification-daily-at-a-set-time-with-swift **
+    //create a notification to be repeated every day for an ADL (here it's 9:30am to brush teeth). Note that this is not used in the demo.
+    func getADLTime(body:String, year:Int, month:Int, day:Int, hour:Int, minute:Int) {
+        //set ADL original alert time
+        let adlComp:NSDateComponents = NSDateComponents()
+        adlComp.timeZone = NSTimeZone.localTimeZone()
+        adlComp.year = year;
+        adlComp.month = month;
+        adlComp.day = day;
+        adlComp.hour = hour;
+        adlComp.minute = minute;
         let cal:NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
-        let date:NSDate = cal.dateFromComponents(brushComp)!
-        toothbrushAlert_time = date
+        let date:NSDate = cal.dateFromComponents(adlComp)!
+
+        notif.alertAction = "Open"
+        notif.alertBody = "Time to " + body
+        notif.fireDate = date
+        
+        notif.repeatInterval = NSCalendarUnit.Day //repeat every day
+        UIApplication.sharedApplication().scheduleLocalNotification(notif)
+        
+        //for now, this sets the toothbrush time. In future what is set will depend on a variable passed in
+        if (body == "brush teeth") {
+            toothbrushAlert_time = date
+        } else {
+            // ???Alert_time = date
+            toothbrushAlert_time = date
+        }
         
     }
     
@@ -144,7 +156,16 @@ class ViewController: UIViewController/*, UIPickerViewDataSource, UIPickerViewDe
                         }
                         if (self.numBrushes == 9) { //finished brushing!
                             self.set_init_vals()
-                            self.toothbrushAlert_time = NSDate(timeIntervalSinceNow: 5) //take out timeInterval after demo
+                            print("closing web socket")
+                            // close websocket connection
+                            let jsonObject: [String: AnyObject] = [
+                                "event": "pusher:unsubscribe",
+                                "data": [
+                                    "channel": "test_channel",
+                                ]
+                            ]
+                            // Unsubscribe to channel
+                            ws.send(self.jsonStringify(jsonObject))
                         }
                         self.numBrushes += 1                        
                     }
@@ -252,16 +273,9 @@ class ViewController: UIViewController/*, UIPickerViewDataSource, UIPickerViewDe
         dateComponentsFormatter.unitsStyle = NSDateComponentsFormatterUnitsStyle.Abbreviated
         dateComponentsFormatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehavior.DropAll
         let stringDiff = dateComponentsFormatter.stringFromTimeInterval(elapsed)
-        //        print("time elapsed (seconds , formatted-time): ")
-        //        print(stringDiff)
         
         return elapsed
         
-    }
-    
-    func processNewTask() {
-        // set lastTaskCompleted to false
-        lastTaskCompleted = false
     }
     
     /* changes the image of the bear
@@ -290,23 +304,7 @@ class ViewController: UIViewController/*, UIPickerViewDataSource, UIPickerViewDe
         }
         
     }
-    
-    /*
-    * Add new task functions.
-    
-    var tasks = ["Brush Teeth", "Get Dressed", "Brush Hair", "Feed Self"]
-    
-    func numberOfComponentsInPickerView(pickerView: UIPickerView) -> Int {
-    return 1
-    }
-    
-    func pickerView(pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-    return tasks.count
-    }
-    
-    func pickerView(pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String! {
-    return tasks[row]
-    }*/
+
     
 }
 

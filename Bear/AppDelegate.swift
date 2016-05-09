@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  Bear
 //
-//  Created by Sophie on 4/10/16.
+//  Created by Rachel and Sophie
 //  Copyright © 2016 Tufts. All rights reserved.
 //
 
@@ -17,25 +17,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         // Override point for customization after application launch.
         application.registerUserNotificationSettings(UIUserNotificationSettings (forTypes: UIUserNotificationType.Alert, categories: nil))
-        var localNotification:UILocalNotification = UILocalNotification()
-        localNotification.alertAction = "Testing"
-        localNotification.alertBody = "Time to Brush Teeth!"
-
-//  ** stackoverflow.com/questions/30619998/repeating-local-notification-daily-at-a-set-time-with-swift **
-        var dateComp:NSDateComponents = NSDateComponents()
-        dateComp.timeZone = NSTimeZone.localTimeZone()
-        dateComp.year = 2016;
-        dateComp.month = 05;
-        dateComp.day = 06;
-        dateComp.hour = 09;
-        dateComp.minute = 30;
-        var calendar:NSCalendar = NSCalendar(calendarIdentifier: NSCalendarIdentifierGregorian)!
-        var date:NSDate = calendar.dateFromComponents(dateComp)!
-        localNotification.fireDate = date
-        
-        localNotification.repeatInterval = NSCalendarUnit.Day //repeat every day
-        UIApplication.sharedApplication().scheduleLocalNotification(localNotification)
-
         return true
     }
 
