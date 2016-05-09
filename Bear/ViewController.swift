@@ -166,6 +166,8 @@ class ViewController: UIViewController {
                             ]
                             // Unsubscribe to channel
                             ws.send(self.jsonStringify(jsonObject))
+                            // Set to congratulatory image
+                            self.bearImage.image = UIImage(named: "girl-congrats")
                         }
                         self.numBrushes += 1                        
                     }
